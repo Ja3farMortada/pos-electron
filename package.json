@@ -18,6 +18,9 @@
                 "repo": "pos-electron"
             }
         ],
+        "extraResources": [
+        "./server"
+        ],
         "npmRebuild": "false",
         "directories": {
             "buildResources": "resources"
