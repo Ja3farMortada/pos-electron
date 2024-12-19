@@ -1,6 +1,6 @@
 {
     "name": "angular-pos",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "Angular POS",
     "main": "main.js",
     "scripts": {
