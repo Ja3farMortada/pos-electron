@@ -9,7 +9,7 @@
     },
     "build": {
         "appId": "com.binariez.Ja3farMortada.pos-electron",
-        "productName": "POS",
+        "productName": "Morexa",
         "target": "NSIS",
         "publish": [
             {
