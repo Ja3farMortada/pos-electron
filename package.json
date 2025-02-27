@@ -1,16 +1,19 @@
 {
     "name": "morexa",
-    "version": "1.5.3",
+    "version": "1.6.0",
     "description": "Morexa",
     "main": "main.js",
     "scripts": {
         "start": "electron .",
-        "build": "electron-builder --x64"
+        "build": "electron-builder --x64 --win"
     },
     "build": {
         "appId": "com.binariez.Ja3farMortada.pos-electron",
         "productName": "Morexa",
         "target": "NSIS",
+        "win": {
+        "target": "nsis"
+        },
         "publish": [
             {
                 "provider": "github",

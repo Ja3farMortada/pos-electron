@@ -47,8 +47,8 @@ async function createWindow() {
 
     const loadSystem = async function () {
         if (isDev) {
-            // win.loadURL("http://localhost:4200");
-            win.loadFile("app/browser/index.html");
+            win.loadURL("http://localhost:4200");
+            // win.loadFile("app/browser/index.html");
         } else {
             win.loadFile("app/browser/index.html");
         }
@@ -185,7 +185,6 @@ ipcMain.handle("print-stock", async (event, data) => {
         });
     });
 });
-
 
 ipcMain.handle("backup", () => {
     return dialog
