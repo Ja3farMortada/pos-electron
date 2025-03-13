@@ -5,11 +5,12 @@
     "main": "main.js",
     "scripts": {
         "start": "electron .",
-        "build": "electron-builder --x64 --win"
+        "build": "rm -rf dist && electron-builder --x64 --win --publish always"
     },
     "build": {
         "appId": "com.binariez.Ja3farMortada.pos-electron",
         "productName": "Morexa",
+        "artifactName": "${name}-${version}.${ext}",
         "target": "NSIS",
         "win": {
         "target": "nsis"
@@ -18,6 +19,7 @@
             {
                 "provider": "github",
                 "owner": "Ja3farMortada",
+                "token": "${env.GH_TOKEN}",
                 "repo": "pos-electron"
             }
         ],
