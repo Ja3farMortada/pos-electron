@@ -19,7 +19,9 @@
             {
                 "provider": "github",
                 "owner": "Ja3farMortada",
-                "repo": "pos-electron"
+                "repo": "pos-electron",
+                "token": "${env.GH_TOKEN}",
+                "releaseType": "release"
             }
         ],
         "extraResources": [
