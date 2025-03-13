@@ -15,17 +15,27 @@
     <body ng-app="printApp" ng-controller="printController">
         <div class="header primary">
             <div class="row d-flex justify-content-between wrapper">
-                <div class="col-7">
+                <!-- title -->
+                <div class="col-5">
                     <!-- <img src="logo.png" height="80px" /> -->
+                    <h2>{{ invoice.settings.brand_name }}</h2>
+                    <p>{{ invoice.settings.address }}</p>
                 </div>
+                <!-- spacer -->
+                <div class="col-2"></div>
+
+                <!-- right info -->
                 <div class="col-5 text-end">
-                    <!-- <p>
-                        <strong>العنوان:</strong> الجنوب - برعشيت - الطريق العام
+                    <p>
+                        {{ invoice.settings.phone_1 }}
                         <br />
-                        قرب الساحة العامة - مبنى ذياب
+                        {{ invoice.settings.phone_2 }}
+                        <br />
+                        {{ invoice.settings.website }}
+                        <br />
+                        {{ invoice.settings.email }}
                         <br />
                     </p>
-                    <p>+961 81-637 348<strong> :الهاتف</strong></p> -->
                 </div>
             </div>
 
@@ -33,12 +43,17 @@
 
             <div class="row d-flex justify-content-between">
                 <div class="col-6">
-                    <p>
-                        <strong>Billed To:</strong> {{ invoice.customer_name }}
-                        <br />
-                        <strong>Phone:</strong> {{ invoice.customer_phone }}
-                        <br />
-                        <strong>Address:</strong> {{ invoice.customer_address }}
+                    <p class="m-0">
+                        <strong>Billed To:</strong> {{ invoice.customer_name ||
+                        '.........................' }}
+                    </p>
+                    <p class="m-0">
+                        <strong>Phone:</strong> {{ invoice.customer_phone ||
+                        '.............................' }}
+                    </p>
+                    <p class="m-0">
+                        <strong>Address:</strong> {{ invoice.customer_address ||
+                        '.........................' }}
                     </p>
                 </div>
 

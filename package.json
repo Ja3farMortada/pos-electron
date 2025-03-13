@@ -1,6 +1,6 @@
 {
     "name": "morexa",
-    "version": "1.7.0",
+    "version": "1.7.1",
     "description": "Morexa",
     "main": "main.js",
     "scripts": {
@@ -19,7 +19,6 @@
             {
                 "provider": "github",
                 "owner": "Ja3farMortada",
-                "token": "${env.GH_TOKEN}",
                 "repo": "pos-electron"
             }
         ],
