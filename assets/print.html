@@ -88,20 +88,42 @@
                     <tr ng-repeat="record in invoice.items">
                         <td>{{ $index + 1 }}</td>
                         <td>{{ record.product_name }}</td>
-                        <td>{{ record.unit_price | currency }}</td>
+
+                        <!-- if dollar selected -->
+                        <td ng-if="invoice.currency == 'dollar'">
+                            {{ record.unit_price | currency }}
+                        </td>
+                        <!-- if lira selected -->
+                        <td ng-if="invoice.currency == 'lira'">
+                            {{ (record.unit_price *
+                            invoice.exchange_rate).toLocaleString() }} L.L
+                        </td>
 
                         <td>{{ record.quantity }}</td>
 
-                        <td>{{ record.total_price | currency }}</td>
+                        <!-- if dollar selected -->
+                        <td ng-if="invoice.currency == 'dollar'">
+                            {{ record.total_price | currency }}
+                        </td>
+
+                        <!-- if lira selected -->
+                        <td ng-if="invoice.currency == 'lira'">
+                            {{ (record.total_price *
+                            invoice.exchange_rate).toLocaleString() }} L.L
+                        </td>
                     </tr>
                 </tbody>
             </table>
 
             <div class="row d-flex justify-content-end text-end">
                 <div class="col-6 text-end">
-                    <strong
+                    <strong ng-if="invoice.currency == 'dollar'"
                         >Grand total: {{ invoice.total_amount | currency
                         }}</strong
+                    >
+                    <strong ng-if="invoice.currency == 'lira'"
+                        >Grand total: {{ (invoice.total_amount *
+                        invoice.exchange_rate).toLocaleString() }} L.L</strong
                     >
                 </div>
             </div>
