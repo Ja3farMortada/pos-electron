@@ -25,16 +25,17 @@ var node;
 const isEnvSet = "ELECTRON_IS_DEV" in process.env;
 const getFromEnv = Number.parseInt(process.env.ELECTRON_IS_DEV, 10) === 1;
 const isDev = isEnvSet ? getFromEnv : !app.isPackaged;
-if (!isDev) {
-    // require server
-    const server = require("../server");
-    node = server.listen(3500, () =>
-        console.log(`listening on port ${3500} ...`)
-    );
-}
+const server = require("../server");
+// if (!isDev) {
+//     // require server
+//     node = server.listen(3000, () =>
+//         console.log(`listening on port ${3000} ...`)
+//     );
+// }
 
+let win;
 async function createWindow() {
-    const win = new BrowserWindow({
+    win = new BrowserWindow({
         width: 800,
         height: 600,
         show: false,
@@ -63,25 +64,44 @@ async function createWindow() {
     updater(win, ipcMain);
 }
 
-app.whenReady().then(() => {
-    createWindow();
+const gotTheLock = app.requestSingleInstanceLock();
 
-    app.on("activate", () => {
-        if (BrowserWindow.getAllWindows().length === 0) {
-            createWindow();
+if (!gotTheLock) {
+    app.quit(); // Quit the second instance immediately
+} else {
+    app.on("second-instance", (event, commandLine, workingDirectory) => {
+        // When a second instance is opened, focus the existing window
+        if (win) {
+            if (win.isMinimized()) win.restore();
+            win.focus();
         }
     });
-});
-
-app.on("window-all-closed", () => {
-    if (process.platform !== "darwin") {
+    app.whenReady().then(() => {
         if (!isDev) {
-            node.close();
+            // require server
+            node = server.listen(3000, () =>
+                console.log(`listening on port ${3000} ...`)
+            );
         }
-        app.quit();
-    }
-});
+        createWindow();
 
+        app.on("activate", () => {
+            if (BrowserWindow.getAllWindows().length === 0) {
+                createWindow();
+            }
+        });
+    });
+    app.on("window-all-closed", () => {
+        if (process.platform !== "darwin") {
+            if (!isDev) {
+                node.close();
+            }
+            app.quit();
+        }
+    });
+}
+
+// normal A4 Print
 let printWindow;
 ipcMain.handle("print-invoice", async (event, data) => {
     printWindow = new BrowserWindow({
@@ -108,81 +128,37 @@ ipcMain.handle("print-invoice", async (event, data) => {
     });
 });
 
-// print delivery note
-ipcMain.handle("print-delivery", async (event, data) => {
-    // console.log(data);
-    printWindow = new BrowserWindow({
-        width: 706.95553,
-        height: 1000,
+// thermal print
+let thermalWindow;
+ipcMain.handle("thermal-print", async (event, data) => {
+    thermalWindow = new BrowserWindow({
+        width: 300,
         show: false,
         webPreferences: {
             preload: path.join(__dirname, "preload.js"),
         },
     });
-
-    printWindow.loadFile("assets/deliveryNote.html");
-    printWindow.show();
-
-    const printOptions = {
-        silent: false, // Print without showing a dialog (optional)
-        marginsType: 0, // Set margin type (optional)
-    };
-    printWindow.webContents.on("did-finish-load", async function () {
-        await printWindow.webContents.send("printDocument", data);
-        printWindow.webContents.print(printOptions, (success) => {
-            printWindow.close();
-        });
-    });
-});
-
-ipcMain.handle("print-statement", async (event, data) => {
-    printWindow = new BrowserWindow({
-        width: 706.95553,
-        height: 1000,
-        show: false,
-        webPreferences: {
-            preload: path.join(__dirname, "preload.js"),
-        },
-    });
-
-    printWindow.loadFile("assets/printStatement.html");
-    printWindow.show();
+    thermalWindow.loadFile("assets/thermalPrint.html");
+    // thermalWindow.show();
 
     const printOptions = {
-        silent: false, // Print without showing a dialog (optional)
-        marginsType: 0, // Set margin type (optional)
+        silent: true,
+        deviceName: data.printer || "XP-80C",
+        marginsType: 0,
     };
-    printWindow.webContents.on("did-finish-load", async function () {
-        await printWindow.webContents.send("printDocument", data);
-        printWindow.webContents.print(printOptions, (success) => {
-            printWindow.close();
-        });
-    });
-});
-
-ipcMain.handle("print-stock", async (event, data) => {
-    // console.log(data);
-    printWindow = new BrowserWindow({
-        width: 706.95553,
-        height: 1000,
-        show: false,
-        webPreferences: {
-            preload: path.join(__dirname, "preload.js"),
-        },
-    });
-
-    printWindow.loadFile("assets/stock.html");
-    printWindow.show();
-
-    const printOptions = {
-        silent: false, // Print without showing a dialog (optional)
-        marginsType: 0, // Set margin type (optional)
-    };
-    printWindow.webContents.on("did-finish-load", async function () {
-        await printWindow.webContents.send("printDocument", data);
-        printWindow.webContents.print(printOptions, (success) => {
-            // printWindow.close();
-        });
+    thermalWindow.webContents.on("did-finish-load", async function () {
+        await thermalWindow.webContents.send("printDocument", data);
+        setTimeout(function () {
+            thermalWindow.webContents.print(
+                printOptions,
+                (success, errorType) => {
+                    if (!success) {
+                        console.log(errorType);
+                    }
+                    // thermalWindow.close();
+                }
+            );
+        }, 200);
     });
 });
 
@@ -200,7 +176,7 @@ ipcMain.handle("backup", () => {
                             host: "localhost",
                             user: "root",
                             password: "roottoor",
-                            database: "angular-pos",
+                            database: "morexa-pos",
                         },
                         dumpToFile: `${data.filePath}`,
                     }).then(
