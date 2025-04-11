@@ -79,8 +79,8 @@ if (!gotTheLock) {
     app.whenReady().then(() => {
         if (!isDev) {
             // require server
-            node = server.listen(3000, () =>
-                console.log(`listening on port ${3000} ...`)
+            node = server.listen(3500, () =>
+                console.log(`listening on port 3500 ...`)
             );
         }
         createWindow();
