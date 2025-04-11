@@ -176,7 +176,7 @@ ipcMain.handle("backup", () => {
                             host: "localhost",
                             user: "root",
                             password: "roottoor",
-                            database: "morexa-pos",
+                            database: "angular-pos",
                         },
                         dumpToFile: `${data.filePath}`,
                     }).then(
