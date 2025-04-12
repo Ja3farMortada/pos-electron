@@ -33,7 +33,7 @@ const server = require("../server");
 //     );
 // }
 
-let win;
+let mainWindow;
 async function createWindow() {
     win = new BrowserWindow({
         width: 800,
@@ -43,40 +43,44 @@ async function createWindow() {
             preload: path.join(__dirname, "preload.js"),
         },
     });
-    win.maximize();
-    win.show();
+    mainWindow.maximize();
+    mainWindow.show();
 
     const loadSystem = async function () {
         if (isDev) {
-            win.loadURL("http://localhost:4200");
-            // win.loadFile("app/browser/index.html");
+            mainWindow.loadURL("http://localhost:4200");
+            // mainWindow.loadFile("app/browser/index.html");
         } else {
-            win.loadFile("app/browser/index.html");
+            mainWindow.loadFile("app/browser/index.html");
         }
     };
 
     loadSystem();
 
-    win.webContents.on("did-fail-load", () => loadSystem());
+    mainWindow.webContents.on("did-fail-load", () => loadSystem());
+
+    mainWindow.on("closed", () => {
+        mainWindow = null;
+    });
 
     // require update module
     const updater = require("./update");
-    updater(win, ipcMain);
+    updater(mainWindow, ipcMain);
 }
 
 const gotTheLock = app.requestSingleInstanceLock();
 
 if (!gotTheLock) {
-    node.close();
     app.quit(); // Quit the second instance immediately
 } else {
     app.on("second-instance", (event, commandLine, workingDirectory) => {
-        // When a second instance is opened, focus the existing window
-        if (win) {
-            if (win.isMinimized()) win.restore();
-            win.focus();
+        // When a second instance is opened, focus the existing mainWindowdow
+        if (mainWindow) {
+            if (mainWindow.isMinimized()) mainWindow.restore();
+            mainWindow.focus();
         }
     });
+
     app.whenReady().then(() => {
         if (!isDev) {
             // require server
@@ -84,13 +88,8 @@ if (!gotTheLock) {
                 console.log(`listening on port 3500 ...`)
             );
         }
-        createWindow();
 
-        app.on("activate", () => {
-            if (BrowserWindow.getAllWindows().length === 0) {
-                createWindow();
-            }
-        });
+        createWindow();
     });
     app.on("window-all-closed", () => {
         if (process.platform !== "darwin") {
@@ -99,10 +98,15 @@ if (!gotTheLock) {
                     node.close();
                 }
             }
-            if (win && !win.isDestroyed()) {
-                win.close();
+            if (mainWindow && !mainWindow.isDestroyed()) {
+                mainWindow.close();
                 app.quit();
             }
+        }
+    });
+    app.on("activate", () => {
+        if (BrowserWindow.getAllWindows().length === 0) {
+            createWindow();
         }
     });
 }
