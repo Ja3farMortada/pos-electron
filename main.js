@@ -67,6 +67,7 @@ async function createWindow() {
 const gotTheLock = app.requestSingleInstanceLock();
 
 if (!gotTheLock) {
+    node.close();
     app.quit(); // Quit the second instance immediately
 } else {
     app.on("second-instance", (event, commandLine, workingDirectory) => {
