@@ -25,17 +25,16 @@ var node;
 const isEnvSet = "ELECTRON_IS_DEV" in process.env;
 const getFromEnv = Number.parseInt(process.env.ELECTRON_IS_DEV, 10) === 1;
 const isDev = isEnvSet ? getFromEnv : !app.isPackaged;
-const server = require("../server");
-// if (!isDev) {
-//     // require server
-//     node = server.listen(3000, () =>
-//         console.log(`listening on port ${3000} ...`)
-//     );
-// }
+if (!isDev) {
+    // require server
+    const server = require("../server");
+    node = server.listen(3500, () =>
+        console.log(`listening on port ${3500} ...`)
+    );
+}
 
-let mainWindow;
 async function createWindow() {
-    win = new BrowserWindow({
+    const win = new BrowserWindow({
         width: 800,
         height: 600,
         show: false,
@@ -43,73 +42,44 @@ async function createWindow() {
             preload: path.join(__dirname, "preload.js"),
         },
     });
-    mainWindow.maximize();
-    mainWindow.show();
+    win.maximize();
+    win.show();
 
     const loadSystem = async function () {
         if (isDev) {
-            mainWindow.loadURL("http://localhost:4200");
-            // mainWindow.loadFile("app/browser/index.html");
+            win.loadURL("http://localhost:4200");
         } else {
-            mainWindow.loadFile("app/browser/index.html");
+            win.loadFile("app/browser/index.html");
         }
     };
 
     loadSystem();
 
-    mainWindow.webContents.on("did-fail-load", () => loadSystem());
-
-    mainWindow.on("closed", () => {
-        mainWindow = null;
-    });
+    win.webContents.on("did-fail-load", () => loadSystem());
 
     // require update module
     const updater = require("./update");
-    updater(mainWindow, ipcMain);
+    updater(win, ipcMain);
 }
 
-const gotTheLock = app.requestSingleInstanceLock();
+app.whenReady().then(() => {
+    createWindow();
 
-if (!gotTheLock) {
-    app.quit(); // Quit the second instance immediately
-} else {
-    app.on("second-instance", (event, commandLine, workingDirectory) => {
-        // When a second instance is opened, focus the existing mainWindowdow
-        if (mainWindow) {
-            if (mainWindow.isMinimized()) mainWindow.restore();
-            mainWindow.focus();
-        }
-    });
-
-    app.whenReady().then(() => {
-        if (!isDev) {
-            // require server
-            node = server.listen(3500, () =>
-                console.log(`listening on port 3500 ...`)
-            );
-        }
-
-        createWindow();
-    });
-    app.on("window-all-closed", () => {
-        if (process.platform !== "darwin") {
-            if (!isDev) {
-                if (node && node.listening) {
-                    node.close();
-                }
-            }
-            if (mainWindow && !mainWindow.isDestroyed()) {
-                mainWindow.close();
-                app.quit();
-            }
-        }
-    });
     app.on("activate", () => {
         if (BrowserWindow.getAllWindows().length === 0) {
             createWindow();
         }
     });
-}
+});
+
+app.on("window-all-closed", () => {
+    if (process.platform !== "darwin") {
+        if (!isDev) {
+            node.close();
+        }
+        app.quit();
+    }
+});
 
 // normal A4 Print
 let printWindow;
