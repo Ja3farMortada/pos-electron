@@ -94,9 +94,14 @@ if (!gotTheLock) {
     app.on("window-all-closed", () => {
         if (process.platform !== "darwin") {
             if (!isDev) {
-                node.close();
+                if (node && node.listening) {
+                    node.close();
+                }
             }
-            app.quit();
+            if (win && !win.isDestroyed()) {
+                win.close();
+                app.quit();
+            }
         }
     });
 }
