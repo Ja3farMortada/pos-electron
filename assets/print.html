@@ -9,40 +9,41 @@
             rel="stylesheet"
             href="../node_modules/bootstrap/dist/css/bootstrap.min.css"
         />
+        <link
+            rel="stylesheet"
+            href="../node_modules/bootstrap-icons/font/bootstrap-icons.min.css"
+        />
         <link rel="stylesheet" href="printStyle.css" />
         <script src="../node_modules/angular/angular.min.js"></script>
     </head>
     <body ng-app="printApp" ng-controller="printController">
-        <div class="header primary">
-            <div class="row d-flex justify-content-between wrapper">
+        <div class="header primary content">
+            <div class="row d-flex justify-content-betweens wrapper">
                 <!-- title -->
-                <div class="col-5">
+                <div class="col-4">
                     <!-- <img src="logo.png" height="80px" /> -->
                     <h2>{{ invoice.settings.brand_name }}</h2>
                     <p>{{ invoice.settings.address }}</p>
                 </div>
-                <!-- spacer -->
-                <div class="col-2"></div>
 
                 <!-- right info -->
-                <div class="col-5 text-end">
-                    <p>
-                        {{ invoice.settings.phone_1 }}
+                <div
+                    class="col-4 offset-4 d-flex align-items-center justify-content-end"
+                >
+                    <h2 ng-if="invoice.type == 'sale'">Sales Invoice</h2>
+                    <h2 ng-if="invoice.type == 'return'">Return Invoice</h2>
+                    <!-- <p>
+                        <strong>Invoice #:</strong> {{ invoice.invoice_number }}
                         <br />
-                        {{ invoice.settings.phone_2 }}
-                        <br />
-                        {{ invoice.settings.website }}
-                        <br />
-                        {{ invoice.settings.email }}
-                        <br />
-                    </p>
+                        <strong>Date:</strong> {{ invoice.order_datetime }}
+                    </p> -->
                 </div>
             </div>
 
-            <hr class="mt-0 pt-0 primary-hr wrapper" />
+            <hr class="mt-0 pt-0 border border-black border-2 opacity-100" />
 
             <div class="row d-flex justify-content-between">
-                <div class="col-6">
+                <div class="col-8">
                     <p class="m-0">
                         <strong>Billed To:</strong> {{ invoice.customer_name ||
                         '.........................' }}
@@ -57,22 +58,16 @@
                     </p>
                 </div>
 
-                <div class="col-2">
-                    <!-- <h2 class="text-center">Price Quote</h2> -->
-                </div>
-
                 <div class="col-4 text-end">
-                    <h3 ng-if="invoice.type == 'sale'">Sales Invoice</h3>
-                    <h3 ng-if="invoice.type == 'return'">Return Invoice</h3>
                     <p>
                         <strong>Invoice #:</strong> {{ invoice.invoice_number }}
                         <br />
                         <strong>Date:</strong> {{ invoice.order_datetime }}
                     </p>
                 </div>
-
-                <br />
             </div>
+
+            <br />
 
             <table class="table table-bordered table-sm text-center">
                 <thead>
@@ -127,11 +122,31 @@
                     >
                 </div>
             </div>
+
+            <!-- signature -->
+            <br />
+            <br />
+            <h6>Signature: ...............................</h6>
         </div>
 
-        <footer class="divFooter fixed">
-            <!-- <img src="icon-250.png" style="opacity: 0.1" /> -->
-        </footer>
+        <div class="print-footer">
+            <div class="row text-center">
+                <div class="col-3 text-center" ng-if="invoice.settings.phone_1">
+                    <i class="bi bi-phone"></i> {{ invoice.settings.phone_1 }}
+                </div>
+                <div class="col-3 text-center" ng-if="invoice.settings.phone_2">
+                    <i class="bi bi-telephone"></i> {{ invoice.settings.phone_2
+                    }}
+                </div>
+                <div class="col-3 text-center" ng-if="invoice.settings.website">
+                    <i class="bi bi-globe"></i> {{ invoice.settings.website }}
+                </div>
+                <div class="col-3 text-center" ng-if="invoice.settings.email">
+                    <i class="bi bi-envelope-at"></i> {{ invoice.settings.email
+                    }}
+                </div>
+            </div>
+        </div>
     </body>
 
     <script>
