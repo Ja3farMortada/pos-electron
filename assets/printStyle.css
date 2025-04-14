@@ -12,7 +12,7 @@ table {
 
 
 .primary {
-    color: black;
+    color: black !important;
 }
 
 .table-bordered th,
@@ -35,7 +35,7 @@ table {
         bottom: 0;
         left: 0;
         right: 0;
-        height: 1mm;
+        height: 5mm;
         text-align: center;
         font-size: 12px;
         border-top: 1px solid #000;
