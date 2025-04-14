@@ -15,6 +15,15 @@ table {
     color: black;
 }
 
+.table-bordered th,
+.table-bordered td {
+  border: 1px solid #000 !important; /* Thicker and darker border */
+}
+
+.table-bordered {
+  border: 1px solid #000 !important; /* Outer border */
+}
+
 @media print {
     .content {
         padding-bottom: 10mm; /* reserve space for footer */
