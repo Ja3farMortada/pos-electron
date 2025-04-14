@@ -119,10 +119,10 @@ ipcMain.handle("thermal-print", async (event, data) => {
         },
     });
     thermalWindow.loadFile("assets/thermalPrint.html");
-    thermalWindow.show();
+    // thermalWindow.show();
 
     const printOptions = {
-        silent: false,
+        silent: true,
         deviceName: data.printer || "XP-80C",
         marginsType: 0,
     };
