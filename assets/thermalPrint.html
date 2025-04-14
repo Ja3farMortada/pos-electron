@@ -127,30 +127,29 @@
     <script>
         const app = angular.module("printApp", []);
         app.controller("printController", function ($scope) {
+            $scope.calculateLBP = (value, rate) => {
+                return Math.round((value * rate) / 1000) * 1000;
+            };
             window.electron.print((event, data) => {
                 console.log(data);
                 $scope.$digest(($scope.invoice = data));
                 $scope.$digest(($scope.currency = data.currency));
-                // $scope.$digest(($scope.invoice = data.invoice));
-            });
-
-            $scope.calculateLBP = (value, rate) => {
-                return Math.round((value * rate) / 1000) * 1000;
-            };
-
-            // let invoice = angular.copy($scope.invoice)
-            $scope.totalLBP = $scope
-                .invoice()
-                .reduce(
-                    (total, item) =>
-                        (total +
-                            this.calculateLBP(
-                                item.unit_price,
-                                $scope.invoice.exchange_rate
-                            )) *
-                        item.quantity,
-                    0
+                $scope.$digest(
+                    ($scope.totalLBP = $scope.invoice["items"].reduce(
+                        (total, item) =>
+                            (total +
+                                $scope.calculateLBP(
+                                    item.unit_price,
+                                    $scope.invoice.exchange_rate
+                                )) *
+                            item.quantity,
+                        0
+                    ))
                 );
+                // $scope.$digest(($scope.invoice = data.invoice));
+
+                // let invoice = angular.copy($scope.invoice)
+            });
         });
     </script>
 </html>
