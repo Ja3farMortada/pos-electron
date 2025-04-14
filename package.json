@@ -1,6 +1,6 @@
 {
     "name": "morexa",
-    "version": "1.10.5",
+    "version": "1.10.6",
     "description": "Morexa",
     "main": "main.js",
     "scripts": {
