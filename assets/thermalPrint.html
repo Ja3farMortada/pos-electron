@@ -87,10 +87,22 @@
                 <tbody>
                     <tr ng-repeat="record in invoice.items">
                         <td>{{ record.quantity }}*{{ record.product_name }}</td>
-                        <td>{{ record.unit_price | currency }}</td>
-                        <td>
-                            {{ (record.unit_price * record.quantity) | currency
-                            }}
+
+                        <td ng-if="invoice.currency == 'usd'">
+                            {{ record.unit_price | currency }}
+                        </td>
+                        <td ng-if="invoice.currency == 'lbp'">
+                            {{ (record.unit_price *
+                            invoice.exchange_rate).toLocaleString() }}
+                        </td>
+
+                        <td ng-if="invoice.currency == 'usd">
+                            {{ (record.total_price) | currency }}
+                        </td>
+
+                        <td ng-if="invoice.currency == 'lbp">
+                            {{ (record.total_price *
+                            invoice.exchange_rate).toLocaleString() }}
                         </td>
                     </tr>
                 </tbody>
@@ -98,8 +110,13 @@
 
             <br />
             <!-- invoice total -->
-            <h6 class="text-center">
+            <h6 class="text-center" ng-if="invoice.currency == 'usd'">
                 Total: {{ invoice.total_amount | currency }}
+            </h6>
+
+            <h6 class="text-center" ng-if="invoice.currency == 'lbp'">
+                Total: {{ (invoice.total_amount *
+                exchange_rate).toLocaleString() }} L.L
             </h6>
 
             <br />
@@ -115,6 +132,7 @@
             window.electron.print((event, data) => {
                 console.log(data);
                 $scope.$digest(($scope.invoice = data));
+
                 // $scope.$digest(($scope.invoice = data.invoice));
             });
         });
