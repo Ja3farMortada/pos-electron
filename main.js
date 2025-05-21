@@ -176,3 +176,41 @@ ipcMain.handle("backup", () => {
             }
         });
 });
+
+// export excel
+ipcMain.handle("export-excel", async (event, data) => {
+    console.log(data);
+    const { canceled, filePath } = await dialog.showSaveDialog({
+        title: "Save Excel File",
+        defaultPath: "sales.xlsx",
+        filters: [{ name: "Excel Files", extensions: ["xlsx"] }],
+    });
+
+    if (canceled || !filePath) {
+        return { success: false, message: "Save canceled" };
+    }
+
+    try {
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet("Data");
+
+        // Auto-generate columns from data
+        const columns = Object.keys(data[0] || {}).map((key) => ({
+            header: key,
+            key: key,
+        }));
+        sheet.columns = columns;
+
+        // Add rows
+        data.forEach((row) => sheet.addRow(row));
+
+        await workbook.xlsx.writeFile(filePath);
+        return {
+            success: true,
+            message: "File saved successfully",
+            path: filePath,
+        };
+    } catch (err) {
+        return { success: false, message: err.message };
+    }
+});
