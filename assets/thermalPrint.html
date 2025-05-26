@@ -128,7 +128,10 @@
         const app = angular.module("printApp", []);
         app.controller("printController", function ($scope) {
             $scope.calculateLBP = (value, rate) => {
-                return Math.round((value * rate) / 1000) * 1000;
+                return (
+                    Math.round((parseFloat(value) * parseFloat(rate)) / 1000) *
+                    1000
+                );
             };
             window.electron.print((event, data) => {
                 console.log(data);
