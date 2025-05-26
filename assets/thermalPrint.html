@@ -140,7 +140,7 @@
                 $scope.$digest(
                     ($scope.totalLBP = $scope.invoice["items"].reduce(
                         (total, item) =>
-                            (total +
+                            (parseFloat(total) +
                                 $scope.calculateLBP(
                                     item.unit_price,
                                     $scope.invoice.exchange_rate
