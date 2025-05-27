@@ -114,7 +114,7 @@
             </h6>
 
             <h6 class="text-center" ng-if="currency == 'lbp'">
-                Total: {{ totalLBP.toLocaleString() }} L.L
+                Total: {{ invoice.total_lbp.toLocaleString() }} L.L
             </h6>
 
             <br />
@@ -137,18 +137,18 @@
                 console.log(data);
                 $scope.$digest(($scope.invoice = data));
                 $scope.$digest(($scope.currency = data.currency));
-                $scope.$digest(
-                    ($scope.totalLBP = $scope.invoice["items"].reduce(
-                        (total, item) =>
-                            (parseFloat(total) +
-                                $scope.calculateLBP(
-                                    item.unit_price,
-                                    $scope.invoice.exchange_rate
-                                )) *
-                            item.quantity,
-                        0
-                    ))
-                );
+                // $scope.$digest(
+                //     ($scope.totalLBP = $scope.invoice["items"].reduce(
+                //         (total, item) =>
+                //             (parseFloat(total) +
+                //                 $scope.calculateLBP(
+                //                     item.unit_price,
+                //                     $scope.invoice.exchange_rate
+                //                 )) *
+                //             item.quantity,
+                //         0
+                //     ))
+                // );
                 // $scope.$digest(($scope.invoice = data.invoice));
 
                 // let invoice = angular.copy($scope.invoice)
