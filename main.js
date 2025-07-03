@@ -120,6 +120,7 @@ ipcMain.handle("thermal-print", async (event, data) => {
             preload: path.join(__dirname, "preload.js"),
         },
     });
+    thermalWindow.setMenu(null);
     thermalWindow.loadFile("assets/thermalPrint.html");
     // thermalWindow.show();
 
@@ -140,6 +141,42 @@ ipcMain.handle("thermal-print", async (event, data) => {
                     // thermalWindow.close();
                 }
             );
+        }, 200);
+    });
+});
+
+// label print
+let labelPrint;
+ipcMain.handle("label-print", async (event, data) => {
+    labelPrint = new BrowserWindow({
+        // width: 187,
+        // height: 140,
+        width: 230,
+        height: 180,
+        show: false,
+        webPreferences: {
+            preload: path.join(__dirname, "preload.js"),
+        },
+    });
+    // labelPrint.setMenu(null);
+    labelPrint.loadFile("assets/labelPrint.html");
+    // labelPrint.show();
+
+    const printOptions = {
+        silent: false,
+        deviceName: data.printer || "XP-365B",
+        marginsType: 0,
+        copies: 3,
+    };
+    labelPrint.webContents.on("did-finish-load", async function () {
+        await labelPrint.webContents.send("printDocument", data);
+        setTimeout(function () {
+            labelPrint.webContents.print(printOptions, (success, errorType) => {
+                if (!success) {
+                    console.log(errorType);
+                }
+                // labelPrint.close();
+            });
         }, 200);
     });
 });
