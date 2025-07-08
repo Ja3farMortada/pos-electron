@@ -166,7 +166,6 @@ ipcMain.handle("label-print", async (event, data) => {
         silent: false,
         deviceName: data.printer || "XP-365B",
         marginsType: 0,
-        copies: 3,
     };
     labelPrint.webContents.on("did-finish-load", async function () {
         await labelPrint.webContents.send("printDocument", data);
