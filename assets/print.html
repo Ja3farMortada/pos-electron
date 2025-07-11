@@ -31,7 +31,7 @@
                     class="col-4 offset-4 d-flex align-items-center justify-content-end"
                 >
                     <h2 ng-if="invoice.type == 'sale'">Sales Invoice</h2>
-                    <h2 ng-if="invoice.type == 'return'">Return Invoice</h2>
+                    <h2 ng-if="invoice.type == 'quote'">Price Quote</h2>
                     <!-- <p>
                         <strong>Invoice #:</strong> {{ invoice.invoice_number }}
                         <br />
@@ -157,7 +157,6 @@
             window.electron.print((event, data) => {
                 console.log(data);
                 $scope.$digest(($scope.invoice = data));
-                // $scope.$digest(($scope.invoice = data.invoice));
             });
 
             $scope.splitArrayIntoChunks = function (array, chunkSize) {
