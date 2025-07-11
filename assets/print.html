@@ -60,7 +60,7 @@
 
                 <div class="col-4 text-end">
                     <p>
-                        <strong>Invoice #:</strong> {{ invoice.invoice_number }}
+                        <strong ng-if="invoice.type == 'sale'">Invoice #:</strong> {{ invoice.invoice_number }}
                         <br />
                         <strong>Date:</strong> {{ invoice.order_datetime }}
                     </p>
@@ -98,12 +98,12 @@
 
                         <!-- if dollar selected -->
                         <td ng-if="invoice.currency == 'dollar'">
-                            {{ record.total_price | currency }}
+                            {{ record.unit_price * record.quantity | currency }}
                         </td>
 
                         <!-- if lira selected -->
                         <td ng-if="invoice.currency == 'lira'">
-                            {{ (record.total_price *
+                            {{ (record.unit_price * record.quantity *
                             invoice.exchange_rate).toLocaleString() }} L.L
                         </td>
                     </tr>
