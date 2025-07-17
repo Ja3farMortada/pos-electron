@@ -105,7 +105,7 @@ ipcMain.handle("print-invoice", async (event, data) => {
     printWindow.webContents.on("did-finish-load", async function () {
         await printWindow.webContents.send("printDocument", data);
         printWindow.webContents.print(printOptions, (success) => {
-            // printWindow.close();
+            printWindow.close();
         });
     });
 });
