@@ -31,12 +31,8 @@
                     class="col-4 offset-4 d-flex align-items-center justify-content-end"
                 >
                     <h2 ng-if="invoice.type == 'sale'">Sales Invoice</h2>
+                    <h2 ng-if="invoice.type == 'return'">Return Invoice</h2>
                     <h2 ng-if="invoice.type == 'quote'">Price Quote</h2>
-                    <!-- <p>
-                        <strong>Invoice #:</strong> {{ invoice.invoice_number }}
-                        <br />
-                        <strong>Date:</strong> {{ invoice.order_datetime }}
-                    </p> -->
                 </div>
             </div>
 
@@ -60,7 +56,11 @@
 
                 <div class="col-4 text-end">
                     <p>
-                        <strong ng-if="invoice.type == 'sale'">Invoice #:</strong> {{ invoice.invoice_number }}
+                        <strong
+                            ng-if="invoice.type == 'sale' || invoice.type == 'return'"
+                            >Invoice #:</strong
+                        >
+                        {{ invoice.invoice_number }}
                         <br />
                         <strong>Date:</strong> {{ invoice.order_datetime }}
                     </p>
