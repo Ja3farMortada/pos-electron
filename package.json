@@ -5,8 +5,8 @@
 	"main": "main.js",
 	"scripts": {
 		"start": "electron .",
-		"test": "rm -rf dist && electron-builder --x64 --win",
-		"build": "rm -rf dist && electron-builder --x64 --win --publish always"
+		"test": "rm -rf dist && cd server && npm rebuild canvas --platform=win32 --arch=x64 && cd .. && electron-builder --x64 --win",
+		"build": "rm -rf dist && cd server && npm rebuild canvas --platform=win32 --arch=x64 && cd .. && electron-builder --x64 --win --publish always"
 	},
 	"build": {
 		"appId": "com.binariez.Ja3farMortada.pos-electron",
