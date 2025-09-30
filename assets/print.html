@@ -33,6 +33,9 @@
                     <h2 ng-if="invoice.type == 'sale'">Sales Invoice</h2>
                     <h2 ng-if="invoice.type == 'return'">Return Invoice</h2>
                     <h2 ng-if="invoice.type == 'quote'">Price Quote</h2>
+                    <h2 ng-if="invoice.type == 'return purchase'">
+                        Return Purchase
+                    </h2>
                 </div>
             </div>
 
@@ -110,7 +113,10 @@
                 </tbody>
             </table>
 
-            <div class="row d-flex justify-content-end text-end">
+            <div
+                class="row d-flex justify-content-end text-end"
+                ng-if="invoice.type == 'sale' || invoice.type == 'return'"
+            >
                 <div class="col-6 text-end">
                     <strong ng-if="invoice.currency == 'dollar'"
                         >Grand total: {{ invoice.total_amount | currency
@@ -119,6 +125,18 @@
                     <strong ng-if="invoice.currency == 'lira'"
                         >Grand total: {{ (invoice.total_amount *
                         invoice.exchange_rate).toLocaleString() }} L.L</strong
+                    >
+                </div>
+            </div>
+
+            <div
+                class="row d-flex justify-content-end text-end"
+                ng-if="invoice.type == 'return purchase'"
+            >
+                <div class="col-6 text-end">
+                    <strong
+                        >Grand total: {{ invoice.total_cost | currency
+                        }}</strong
                     >
                 </div>
             </div>
