@@ -85,7 +85,7 @@
                 <tbody>
                     <tr ng-repeat="record in invoice.items">
                         <td>{{ $index + 1 }}</td>
-                        <td>{{ record.product_name }}</td>
+                        <td dir="auto">{{ record.product_name }}</td>
 
                         <!-- if dollar selected -->
                         <td ng-if="invoice.currency == 'dollar'">
