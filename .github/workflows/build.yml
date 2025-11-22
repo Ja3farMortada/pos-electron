@@ -43,7 +43,7 @@ jobs:
             # 6️⃣ Build Windows EXE
             - name: Build EXE
               run: |
-                  npx electron-builder --x64 --win --publish never
+                  npx electron-builder --x64 --win --publish always
 
             # 7️⃣ Upload EXE artifact
             - name: Upload EXE Artifact
