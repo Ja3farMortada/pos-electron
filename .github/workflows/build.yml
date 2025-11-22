@@ -41,11 +41,10 @@ jobs:
                   cd ..
 
             # 6️⃣ Build Windows EXE
-            - name: Build EXE
-              run: |
-                  npx electron-builder --x64 --win --publish always
+            - name: Build & Publish EXE
+              run: npx electron-builder --x64 --win --publish always
               env:
-                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
             # 7️⃣ Upload EXE artifact
             - name: Upload EXE Artifact
