@@ -1,0 +1,56 @@
+{
+  "name": "morexa",
+  "version": "1.22.6",
+  "description": "Morexa",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "rm -rf dist && electron-builder --x64 --win --publish always"
+  },
+  "build": {
+    "appId": "com.binariez.Ja3farMortada.pos-electron",
+    "productName": "Morexa",
+    "artifactName": "${name}-${version}.${ext}",
+    "win": {
+      "target": "nsis"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Ja3farMortada",
+        "repo": "pos-electron",
+        "releaseType": "release"
+      }
+    ],
+    "extraResources": [
+      "./server"
+    ],
+    "npmRebuild": false,
+    "directories": {
+      "buildResources": "resources"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ja3farMortada/pos-electron.git"
+  },
+  "author": "Binariez LLC",
+  "license": "ISC",
+  "dependencies": {
+    "angular": "^1.8.3",
+    "bootstrap": "^5.3.3",
+    "bootstrap-icons": "^1.11.3",
+    "electron-context-menu": "^3.6.1",
+    "electron-log": "^4.4.8",
+    "electron-updater": "^6.1.1",
+    "exceljs": "^4.4.0",
+    "jsbarcode": "^3.12.1",
+    "moment": "^2.29.4",
+    "mysql2": "^3.6.0",
+    "mysqldump": "^3.2.0"
+  },
+  "devDependencies": {
+    "electron": "^32.3.3",
+    "electron-builder": "^26.0.12"
+  }
+}
