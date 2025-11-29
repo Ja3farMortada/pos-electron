@@ -12,15 +12,7 @@ Menu.setApplicationMenu(menu);
 
 const path = require("path");
 
-// electron context menu
-contextMenu = require("electron-context-menu");
-contextMenu({
-    showSaveImageAs: false,
-    showSearchWithGoogle: false,
-    showInspectElement: false,
-    showSelectAll: false,
-    showCopyImage: false,
-});
+
 
 // Check if electron is in development mode to enable Node.js on release mode
 var node;
@@ -64,7 +56,16 @@ async function createWindow() {
     updater(win, ipcMain);
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+    const { default: contextMenu } = await import("electron-context-menu");
+    contextMenu({
+        showSaveImageAs: false,
+        showSearchWithGoogle: false,
+        showInspectElement: false,
+        showSelectAll: false,
+        showCopyImage: false,
+    });
+
     createWindow();
 
     app.on("activate", () => {
@@ -84,10 +85,9 @@ app.on("window-all-closed", () => {
 });
 
 // normal A4 Print
-let printWindow;
 ipcMain.handle("print-invoice", async (event, data) => {
-    printWindow = new BrowserWindow({
-        width: 706.95553,
+    const printWindow = new BrowserWindow({
+        width: 707,
         height: 1000,
         show: false,
         webPreferences: {
@@ -103,8 +103,9 @@ ipcMain.handle("print-invoice", async (event, data) => {
         marginsType: 0, // Set margin type (optional)
     };
     printWindow.webContents.on("did-finish-load", async function () {
-        await printWindow.webContents.send("printDocument", data);
-        printWindow.webContents.print(printOptions, (success) => {
+        printWindow.webContents.send("printDocument", data);
+        printWindow.webContents.print(printOptions, (success, failureReason) => {
+            if (!success) console.log('Print failed:', failureReason);
             printWindow.close();
         });
     });
@@ -255,8 +256,8 @@ ipcMain.handle("export-excel", async (event, data) => {
 
 ipcMain.handle("print-stock", async (event, data) => {
     // console.log(data);
-    printWindow = new BrowserWindow({
-        width: 706.95553,
+    const printWindow = new BrowserWindow({
+        width: 707,
         height: 1000,
         show: false,
         webPreferences: {
@@ -272,8 +273,9 @@ ipcMain.handle("print-stock", async (event, data) => {
         marginsType: 0, // Set margin type (optional)
     };
     printWindow.webContents.on("did-finish-load", async function () {
-        await printWindow.webContents.send("printDocument", data);
-        printWindow.webContents.print(printOptions, (success) => {
+        printWindow.webContents.send("printDocument", data);
+        printWindow.webContents.print(printOptions, (success, failureReason) => {
+            if (!success) console.log('Print stock failed:', failureReason);
             printWindow.close();
         });
     });

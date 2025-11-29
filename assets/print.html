@@ -1,190 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Print</title>
-        <link
-            rel="stylesheet"
-            href="../node_modules/bootstrap/dist/css/bootstrap.min.css"
-        />
-        <link
-            rel="stylesheet"
-            href="../node_modules/bootstrap-icons/font/bootstrap-icons.min.css"
-        />
-        <link rel="stylesheet" href="printStyle.css" />
-        <script src="../node_modules/angular/angular.min.js"></script>
-    </head>
-    <body ng-app="printApp" ng-controller="printController">
-        <div class="header primary content">
-            <div class="row d-flex justify-content-betweens wrapper">
-                <!-- title -->
-                <div class="col-4">
-                    <!-- <img src="logo.png" height="80px" /> -->
-                    <h2>{{ invoice.settings.brand_name }}</h2>
-                    <p>{{ invoice.settings.address }}</p>
-                </div>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Print</title>
 
-                <!-- right info -->
-                <div
-                    class="col-4 offset-4 d-flex align-items-center justify-content-end"
-                >
-                    <h2 ng-if="invoice.type == 'sale'">Sales Invoice</h2>
-                    <h2 ng-if="invoice.type == 'return'">Return Invoice</h2>
-                    <h2 ng-if="invoice.type == 'quote'">Price Quote</h2>
-                    <h2 ng-if="invoice.type == 'return purchase'">
-                        Return Purchase
-                    </h2>
-                </div>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../node_modules/bootstrap-icons/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="printStyle.css" />
+
+    <!-- Vue Installed from npm -->
+    <script src="../node_modules/vue/dist/vue.global.prod.js"></script>
+</head>
+
+<body>
+<div id="app">
+    <div class="header primary content">
+        <div class="row d-flex justify-content-between wrapper">
+            <div class="col-4">
+                <h2>{{ invoice.settings.brand_name }}</h2>
+                <p>{{ invoice.settings.address }}</p>
             </div>
 
-            <hr class="mt-0 pt-0 border border-black border-2 opacity-100" />
-
-            <div class="row d-flex justify-content-between">
-                <div class="col-8">
-                    <p class="m-0">
-                        <strong>Billed To:</strong> {{ invoice.customer_name ||
-                        '.........................' }}
-                    </p>
-                    <p class="m-0">
-                        <strong>Phone:</strong> {{ invoice.customer_phone ||
-                        '.............................' }}
-                    </p>
-                    <p class="m-0">
-                        <strong>Address:</strong> {{ invoice.customer_address ||
-                        '.........................' }}
-                    </p>
-                </div>
-
-                <div class="col-4 text-end">
-                    <p>
-                        <strong
-                            ng-if="invoice.type == 'sale' || invoice.type == 'return'"
-                            >Invoice #:</strong
-                        >
-                        {{ invoice.invoice_number }}
-                        <br />
-                        <strong>Date:</strong> {{ invoice.order_datetime }}
-                    </p>
-                </div>
-            </div>
-
-            <br />
-
-            <table class="table table-bordered table-sm text-center">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Item Description</th>
-                        <th>Unit Price</th>
-                        <th>Qty</th>
-                        <th>Total Price</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="record in invoice.items">
-                        <td>{{ $index + 1 }}</td>
-                        <td dir="auto">{{ record.product_name }}</td>
-
-                        <!-- if dollar selected -->
-                        <td ng-if="invoice.currency == 'dollar'">
-                            {{ record.unit_price | currency }}
-                        </td>
-                        <!-- if lira selected -->
-                        <td ng-if="invoice.currency == 'lira'">
-                            {{ (record.unit_price *
-                            invoice.exchange_rate).toLocaleString() }} L.L
-                        </td>
-
-                        <td>{{ record.quantity }}</td>
-
-                        <!-- if dollar selected -->
-                        <td ng-if="invoice.currency == 'dollar'">
-                            {{ record.unit_price * record.quantity | currency }}
-                        </td>
-
-                        <!-- if lira selected -->
-                        <td ng-if="invoice.currency == 'lira'">
-                            {{ (record.unit_price * record.quantity *
-                            invoice.exchange_rate).toLocaleString() }} L.L
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div
-                class="row d-flex justify-content-end text-end"
-                ng-if="invoice.type == 'sale' || invoice.type == 'return'"
-            >
-                <div class="col-6 text-end">
-                    <strong ng-if="invoice.currency == 'dollar'"
-                        >Grand total: {{ invoice.total_amount | currency
-                        }}</strong
-                    >
-                    <strong ng-if="invoice.currency == 'lira'"
-                        >Grand total: {{ (invoice.total_amount *
-                        invoice.exchange_rate).toLocaleString() }} L.L</strong
-                    >
-                </div>
-            </div>
-
-            <div
-                class="row d-flex justify-content-end text-end"
-                ng-if="invoice.type == 'return purchase'"
-            >
-                <div class="col-6 text-end">
-                    <strong
-                        >Grand total: {{ invoice.total_cost | currency
-                        }}</strong
-                    >
-                </div>
-            </div>
-
-            <!-- signature -->
-            <br />
-            <br />
-            <h6>Signature: ...............................</h6>
-        </div>
-
-        <div class="print-footer">
-            <div class="row text-center">
-                <div class="col-3 text-center" ng-if="invoice.settings.phone_1">
-                    <i class="bi bi-phone primary"></i> {{
-                    invoice.settings.phone_1 }}
-                </div>
-                <div class="col-3 text-center" ng-if="invoice.settings.phone_2">
-                    <i class="bi bi-telephone primary"></i> {{
-                    invoice.settings.phone_2 }}
-                </div>
-                <div class="col-3 text-center" ng-if="invoice.settings.website">
-                    <i class="bi bi-globe primary"></i> {{
-                    invoice.settings.website }}
-                </div>
-                <div class="col-3 text-center" ng-if="invoice.settings.email">
-                    <i class="bi bi-envelope-at primary"></i> {{
-                    invoice.settings.email }}
-                </div>
+            <div class="col-4 d-flex align-items-center justify-content-end">
+                <h2 v-if="invoice.type === 'sale'">Sales Invoice</h2>
+                <h2 v-if="invoice.type === 'return'">Return Invoice</h2>
+                <h2 v-if="invoice.type === 'quote'">Price Quote</h2>
+                <h2 v-if="invoice.type === 'return purchase'">Return Purchase</h2>
             </div>
         </div>
-    </body>
 
-    <script>
-        const app = angular.module("printApp", []);
-        app.controller("printController", function ($scope) {
-            window.electron.print((event, data) => {
-                console.log(data);
-                $scope.$digest(($scope.invoice = data));
-            });
+        <hr class="mt-0 pt-0 border border-black border-2 opacity-100" />
 
-            $scope.splitArrayIntoChunks = function (array, chunkSize) {
-                $scope.chunks = [];
-                for (let i = 0; i < array.length; i += chunkSize) {
-                    $scope.chunks.push(array.slice(i, i + chunkSize));
-                }
+        <div class="row d-flex justify-content-between">
+            <div class="col-8">
+                <p class="m-0"><strong>Billed To:</strong> {{ invoice.customer_name || '.........................' }}</p>
+                <p class="m-0"><strong>Phone:</strong> {{ invoice.customer_phone || '.............................' }}</p>
+                <p class="m-0"><strong>Address:</strong> {{ invoice.customer_address || '.........................' }}</p>
+            </div>
 
-                return $scope.chunks;
-            };
+            <div class="col-4 text-end">
+                <p>
+                    <strong v-if="['sale','return'].includes(invoice.type)">Invoice #:</strong>
+                    {{ invoice.invoice_number }}<br />
+                    <strong>Date:</strong> {{ invoice.order_datetime }}
+                </p>
+            </div>
+        </div>
+
+        <br />
+
+        <table class="table table-bordered table-sm text-center">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Item Description</th>
+                    <th>Unit Price</th>
+                    <th>Qty</th>
+                    <th>Total Price</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr v-for="(record, index) in invoice.items" :key="index">
+                    <td>{{ index + 1 }}</td>
+                    <td dir="auto">{{ record.product_name }}</td>
+
+                    <td v-if="invoice.currency === 'dollar'">
+                        {{ formatCurrency(record.unit_price) }}
+                    </td>
+
+                    <td v-if="invoice.currency === 'lira'">
+                        {{ (record.unit_price * invoice.exchange_rate).toLocaleString() }} L.L
+                    </td>
+
+                    <td>{{ record.quantity }}</td>
+
+                    <td v-if="invoice.currency === 'dollar'">
+                        {{ formatCurrency(record.unit_price * record.quantity) }}
+                    </td>
+
+                    <td v-if="invoice.currency === 'lira'">
+                        {{ (record.unit_price * record.quantity * invoice.exchange_rate).toLocaleString() }} L.L
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- totals -->
+        <div class="row d-flex justify-content-end text-end"
+            v-if="['sale','return'].includes(invoice.type)">
+            <div class="col-6">
+                <strong v-if="invoice.currency === 'dollar'">
+                    Grand total: {{ formatCurrency(invoice.total_amount) }}
+                </strong>
+                <strong v-if="invoice.currency === 'lira'">
+                    {{ (invoice.total_amount * invoice.exchange_rate).toLocaleString() }} L.L
+                </strong>
+            </div>
+        </div>
+
+        <div class="row d-flex justify-content-end text-end"
+            v-if="invoice.type === 'return purchase'">
+            <div class="col-6">
+                <strong>
+                    Grand total: {{ formatCurrency(invoice.total_cost) }}
+                </strong>
+            </div>
+        </div>
+
+        <br /><br />
+        <h6>Signature: ...............................</h6>
+    </div>
+
+    <!-- footer -->
+    <div class="print-footer">
+        <div class="row text-center">
+            <div class="col-3" v-if="invoice.settings.phone_1">
+                <i class="bi bi-phone primary"></i> {{ invoice.settings.phone_1 }}
+            </div>
+
+            <div class="col-3" v-if="invoice.settings.phone_2">
+                <i class="bi bi-telephone primary"></i> {{ invoice.settings.phone_2 }}
+            </div>
+
+            <div class="col-3" v-if="invoice.settings.website">
+                <i class="bi bi-globe primary"></i> {{ invoice.settings.website }}
+            </div>
+
+            <div class="col-3" v-if="invoice.settings.email">
+                <i class="bi bi-envelope-at primary"></i> {{ invoice.settings.email }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const { createApp, reactive } = Vue;
+
+createApp({
+    setup() {
+        const invoice = reactive({
+            settings: {},
+            items: []
         });
-    </script>
+
+        function formatCurrency(val) {
+            if (!val) return '$0.00';
+            return val.toLocaleString(undefined, {
+                style: 'currency',
+                currency: 'USD'
+            });
+        }
+
+        // Electron Sync
+        if (window.electron) {
+            window.electron.print((event, data) => {
+                Object.assign(invoice, data);
+            });
+        }
+
+        return {
+            invoice,
+            formatCurrency
+        };
+    }
+}).mount('#app');
+</script>
+
+</body>
 </html>
