@@ -25,14 +25,12 @@ router.post("/brands", BrandController.createBrand);
 router.put("/brands", BrandController.updateBrand);
 router.delete("/brands/:id", BrandController.deleteBrand);
 
-router.get("/items", ProductController.getAllProducts);
-router.get("/items/:category_id", ProductController.getByCategory);
-router.get("/item/:barcode", ProductController.getByBarcode);
+router.get("/products/:inventory_id", ProductController.getAllProducts);
 router.post("/items", ProductController.createProduct);
 router.put("/items", ProductController.updateProduct);
 router.delete("/items/:id", ProductController.deleteProduct);
 router.post("/correction", ProductController.addStockCorrection);
-router.get("/history/:id", ProductController.getHistoryById);
+router.get("/history/:id/:inventory_id", ProductController.getHistoryById);
 
 router.get("/generate-barcode", ProductController.generateBarcode);
 

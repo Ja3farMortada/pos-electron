@@ -66,6 +66,7 @@ app.use("/supply", auth, PurchaseOrdersRoutes);
 app.use("/notes", auth, NotesRoutes);
 app.use("/settings", SettingsRoutes);
 app.use("/rate", require("./routes/rate.routes"));
+app.use("/inventory", auth, require("./routes/inventory.routes"));
 
 // admin routes
 app.use("/users", auth, UsersRoutes);

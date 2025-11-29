@@ -2,35 +2,18 @@ const Product = require("../models/ProductModel");
 
 // ###################################### items controllers ######################################
 
+// get all
 exports.getAllProducts = async (req, res, next) => {
     try {
-        let products = await Product.getAll();
+        let {inventory_id} = req.params
+        let products = await Product.getAll(inventory_id);
         res.status(200).send(products);
     } catch (error) {
         next(error);
     }
 };
 
-exports.getByCategory = async (req, res) => {
-    try {
-        const category_id = req.params.category_id;
-        const result = await Product.getByCategory(category_id);
-        res.status(200).send(result);
-    } catch (error) {
-        next(error);
-    }
-};
-
-exports.getByBarcode = async (req, res) => {
-    try {
-        const barcode = req.params.barcode;
-        const [result] = await Product.getByBarcode(barcode);
-        res.status(200).send(result);
-    } catch (error) {
-        next(error);
-    }
-};
-
+// create
 exports.createProduct = async (req, res, next) => {
     const io = req.io;
     const user = req.user;
@@ -50,6 +33,7 @@ exports.createProduct = async (req, res, next) => {
     }
 };
 
+// update
 exports.updateProduct = async (req, res, next) => {
     const io = req.io;
     const user = req.user;
@@ -68,6 +52,7 @@ exports.updateProduct = async (req, res, next) => {
     }
 };
 
+// delete
 exports.deleteProduct = async (req, res, next) => {
     const io = req.io;
     const user = req.user;
@@ -89,6 +74,7 @@ exports.deleteProduct = async (req, res, next) => {
     }
 };
 
+// correct stocki
 exports.addStockCorrection = async (req, res, next) => {
     try {
         const io = req.io;
@@ -98,7 +84,7 @@ exports.addStockCorrection = async (req, res, next) => {
         await Product.updateStock(data);
 
         // fetch updated product
-        const [updatedProduct] = await Product.getById(data.product_id_fk);
+        const [updatedProduct] = await Product.getById(data.product_id_fk, data.inventory_id);
 
         io.emit("productUpdated", [updatedProduct, user]);
 
@@ -110,8 +96,8 @@ exports.addStockCorrection = async (req, res, next) => {
 
 exports.getHistoryById = async (req, res, next) => {
     try {
-        const id = req.params.id;
-        const history = await Product.getHistoryById(id);
+        const { id, inventory_id } = req.params;
+        const history = await Product.getHistoryById(id, inventory_id);
         res.status(200).send(history);
     } catch (error) {
         next(error);

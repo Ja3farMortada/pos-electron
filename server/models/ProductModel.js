@@ -4,7 +4,7 @@ const Rate = require("./RateModel");
 
 class Product {
     // get all products
-    static async getAll() {
+    static async getAll(inventory_id) {
         const query = `SELECT
         			C.category_name,
                     B.brand_name,
@@ -31,56 +31,18 @@ class Product {
         				+ SUM(CASE WHEN transaction_type = 'DISPOSE' THEN quantity ELSE 0 END)
         				+ SUM(CASE WHEN transaction_type = 'DELIVER' THEN quantity ELSE 0 END) AS quantity
         			FROM inventory_transactions
+                    WHERE inventory_id = ?
         			GROUP BY product_id_fk
         		) t ON P.product_id = t.product_id_fk AND P.stock_management = 1
         		WHERE P.is_deleted = 0
         		ORDER BY P.product_id ASC;`;
 
-        const [result] = await pool.query(query);
+        const [result] = await pool.query(query, [inventory_id]);
         return result;
     }
 
-    // get by category_id
-    static async getByCategory(category_id) {
-        const [rows] = await pool.query(
-            `SELECT
-        			C.category_name,
-                    B.brand_name,
-        			P.*,
-                    CASE
-                        WHEN barcode IS NULL OR barcode = '' THEN false
-                        ELSE true
-                    END AS have_barcode,
-                    COALESCE(t.quantity, 0) AS quantity
-        		FROM products P
-
-        		LEFT JOIN products_categories C ON P.category_id_fk = C.category_id
-                LEFT JOIN products_brands B ON P.brand_id_fk = B.brand_id
-        		LEFT JOIN (
-        			SELECT
-        				product_id_fk,
-        				SUM(CASE WHEN transaction_type = 'SUPPLY' THEN quantity ELSE 0 END)
-                        + SUM(CASE WHEN transaction_type = 'RETURN PURCHASE' THEN quantity ELSE 0 END)
-                        + SUM(CASE WHEN transaction_type = 'RETURN' THEN quantity ELSE 0 END)
-                        + SUM(CASE WHEN transaction_type = 'DELETE' THEN quantity ELSE 0 END)
-        				+ SUM(CASE WHEN transaction_type = 'ADD' THEN quantity ELSE 0 END)
-        				+ SUM(CASE WHEN transaction_type = 'REMOVE' THEN quantity ELSE 0 END)
-        				+ SUM(CASE WHEN transaction_type = 'SALE' THEN quantity ELSE 0 END)
-        				+ SUM(CASE WHEN transaction_type = 'DISPOSE' THEN quantity ELSE 0 END)
-        				+ SUM(CASE WHEN transaction_type = 'DELIVER' THEN quantity ELSE 0 END) AS quantity
-        			FROM inventory_transactions
-        			GROUP BY product_id_fk
-        		) t ON P.product_id = t.product_id_fk AND P.stock_management = 1
-        		WHERE P.is_deleted = 0
-                AND C.category_id = ?
-        		ORDER BY P.product_id ASC;`,
-            [category_id]
-        );
-        return rows;
-    }
-
     // get by product_id
-    static async getById(product_id) {
+    static async getById(product_id, inventory_id) {
         const query = `SELECT
         			C.category_name,
                     B.brand_name,
@@ -107,46 +69,12 @@ class Product {
         				+ SUM(CASE WHEN transaction_type = 'DISPOSE' THEN quantity ELSE 0 END)
         				+ SUM(CASE WHEN transaction_type = 'DELIVER' THEN quantity ELSE 0 END) AS quantity
         			FROM inventory_transactions
+                    WHERE inventory_id = ?
         			GROUP BY product_id_fk
         		) t ON P.product_id = t.product_id_fk AND P.stock_management = 1
         		WHERE P.is_deleted = 0
         		AND P.product_id = ?`;
-        const [rows] = await pool.query(query, [product_id]);
-        return rows;
-    }
-
-    static async getByBarcode(barcode) {
-        const query = `SELECT
-        			C.category_name,
-                    B.brand_name,
-        			P.*,
-                    CASE
-                        WHEN barcode IS NULL OR barcode = '' THEN false
-                        ELSE true
-                    END AS have_barcode,
-                    COALESCE(t.quantity, 0) AS quantity
-        		FROM products P
-
-        		LEFT JOIN products_categories C ON P.category_id_fk = C.category_id
-                LEFT JOIN products_brands B ON P.brand_id_fk = B.brand_id
-        		LEFT JOIN (
-        			SELECT
-        				product_id_fk,
-        				SUM(CASE WHEN transaction_type = 'SUPPLY' THEN quantity ELSE 0 END)
-                        + SUM(CASE WHEN transaction_type = 'RETURN PURCHASE' THEN quantity ELSE 0 END)
-                        + SUM(CASE WHEN transaction_type = 'RETURN' THEN quantity ELSE 0 END)
-                        + SUM(CASE WHEN transaction_type = 'DELETE' THEN quantity ELSE 0 END)
-        				+ SUM(CASE WHEN transaction_type = 'ADD' THEN quantity ELSE 0 END)
-        				+ SUM(CASE WHEN transaction_type = 'REMOVE' THEN quantity ELSE 0 END)
-        				+ SUM(CASE WHEN transaction_type = 'SALE' THEN quantity ELSE 0 END)
-        				+ SUM(CASE WHEN transaction_type = 'DISPOSE' THEN quantity ELSE 0 END)
-        				+ SUM(CASE WHEN transaction_type = 'DELIVER' THEN quantity ELSE 0 END) AS quantity
-        			FROM inventory_transactions
-        			GROUP BY product_id_fk
-        		) t ON P.product_id = t.product_id_fk AND P.stock_management = 1
-        		WHERE P.is_deleted = 0
-        		AND P.barcode = ?`;
-        const [rows] = await pool.query(query, [barcode]);
+        const [rows] = await pool.query(query, [inventory_id, product_id]);
         return rows;
     }
 
@@ -296,7 +224,7 @@ class Product {
         await pool.query(query, data);
     }
 
-    static async getHistoryById(id) {
+    static async getHistoryById(id, inventory_id) {
         // const query = `SELECT * FROM inventory_transactions WHERE product_id_fk = ? AND is_deleted = 0 ORDER BY transaction_datetime DESC LIMIT 100`;
         const query = `SELECT
 			T.*,
@@ -307,10 +235,11 @@ class Product {
 			) AS balance
 			FROM inventory_transactions T
 			WHERE T.product_id_fk = ?
+            AND T.inventory_id = ?
 			AND T.is_deleted = 0
 			ORDER BY T.transaction_datetime DESC
 			LIMIT 100000;`;
-        let [rows] = await pool.query(query, id);
+        let [rows] = await pool.query(query, [id, inventory_id]);
         return rows;
     }
 

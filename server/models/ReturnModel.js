@@ -170,9 +170,10 @@ class ReturnOrder {
                             quantity,
                             order_id,
                             invoice_number,
+                            order.inventory_id,
                         ]);
                         //add order_items to inventory transactions
-                        queries += `INSERT INTO inventory_transactions (product_id_fk, quantity, transaction_type, order_id_fk, transaction_notes) VALUES (?, ?, 'RETURN', ?, ?);`;
+                        queries += `INSERT INTO inventory_transactions (product_id_fk, quantity, transaction_type, order_id_fk, transaction_notes, inventory_id) VALUES (?, ?, 'RETURN', ?, ?, ?);`;
                     }
                 });
                 if (queries) {
@@ -240,7 +241,7 @@ class ReturnOrder {
                     quantity = element.quantity;
 
                     // update inventory
-                    inventoryQueries += `INSERT INTO inventory_transactions (product_id_fk, transaction_type, quantity, order_id_fk, transaction_notes) VALUES (${product_id}, 'RETURN', ${quantity}, ${order_id}, '${orderCheck.invoice_number}');`;
+                    inventoryQueries += `INSERT INTO inventory_transactions (product_id_fk, transaction_type, quantity, order_id_fk, transaction_notes, inventory_id) VALUES (${product_id}, 'RETURN', ${quantity}, ${order_id}, '${orderCheck.invoice_number}', ${order.inventory_id});`;
                 }
             });
 
@@ -272,11 +273,12 @@ class ReturnOrder {
 
             // ##############################################################################################
             // ####################### create journal voucher and journal items #############################
-            let query = `INSERT INTO journal_vouchers (journal_date, journal_description, journal_notes, total_value, currency, exchange_rate, user_id) VALUES (?, ?, ?, ?, ?, ?)`;
+            let query = `INSERT INTO journal_vouchers (journal_date, journal_description, journal_notes, total_value, currency, exchange_rate, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)`;
             let [journal_voucher] = await connection.query(query, [
                 order.order_datetime,
                 "Return",
                 order.journal_notes,
+                order.total_amount,
                 orderCheck.currency,
                 orderCheck.exchange_rate,
                 orderCheck.user_id,

@@ -4,20 +4,6 @@ const moment = require("moment");
 class History {
     // fetch sales invoices
     static async fetchSalesHistory(criteria) {
-        // let sql = `SELECT
-        //     A.name AS customer_name,
-        //     A.phone AS customer_phone,
-        //     A.address AS customer_address,
-        //     O.*,
-        //     O.order_datetime AS order_date,
-        //     U.username,
-        //     JSON_ARRAYAGG(JSON_OBJECT('order_item_id', M.order_item_id, 'product_id', M.product_id, 'product_name', S.product_name, 'barcode', S.barcode, 'stock_management', S.stock_management, 'quantity', M.quantity, 'original_price', M.original_price, 'discount_percentage', M.discount_percentage, 'unit_cost', M.unit_cost, 'avg_cost', M.avg_cost, 'unit_price', M.unit_price, 'total_price', M.total_price)) items
-        //     FROM sales_orders O
-        //     INNER JOIN sales_order_items M ON O.order_id = M.order_id
-        //     INNER JOIN products S ON S.product_id = M.product_id
-        //     LEFT JOIN users U ON U.user_id = O.user_id
-        //     LEFT JOIN accounts  A ON O.customer_id = A.account_id
-        //     WHERE O.is_deleted = 0`;
 
         let sql = `SELECT
             A.name AS customer_name,
@@ -25,10 +11,12 @@ class History {
             A.address AS customer_address,
             O.*,
             O.order_datetime AS order_date,
+            I.inventory_name,
             U.username
             FROM sales_orders O
             LEFT JOIN users U ON U.user_id = O.user_id
             LEFT JOIN accounts A ON O.customer_id = A.account_id
+            INNER JOIN inventory I ON O.inventory_id = I.inventory_id
 
             WHERE O.is_deleted = 0 `;
         const params = [];
@@ -39,6 +27,10 @@ class History {
         if (criteria.customer_id) {
             sql += ` AND O.customer_id = ?`;
             params.push(criteria.customer_id);
+        }
+        if (criteria.inventory_id) {
+            sql += ` AND O.inventory_id = ?`;
+            params.push(criteria.inventory_id);
         }
         if (criteria.start_date) {
             sql += ` AND DATE(order_datetime) >= ?`;
@@ -146,12 +138,14 @@ class History {
                 A.phone AS customer_phone,
                 A.address AS customer_address,
                 RO.*,
+                I.inventory_name,
                 DATE(RO.order_datetime) AS order_date,
                 JSON_ARRAYAGG(JSON_OBJECT('order_item_id', M.order_item_id, 'product_id', M.product_id, 'product_name', S.product_name, 'sku', S.sku, 'barcode', S.barcode, 'stock_management', S.stock_management, 'quantity', M.quantity, 'unit_cost', M.unit_cost, 'unit_price', M.unit_price, 'total_price', M.total_price)) items
             FROM return_orders RO
             INNER JOIN return_order_items M ON RO.order_id = M.order_id
             INNER JOIN products S ON S.product_id = M.product_id
             LEFT JOIN accounts  A ON RO.customer_id = A.account_id
+            INNER JOIN inventory I ON RO.inventory_id = I.inventory_id
             WHERE RO.is_deleted = 0 `;
         const params = [];
         if (criteria.invoice_number) {
@@ -186,11 +180,13 @@ class History {
             A.financial_number,
             PO.*,
             DATE(PO.order_datetime) AS order_date,
+            I.inventory_name,
             JSON_ARRAYAGG(JSON_OBJECT('order_item_id', M.order_item_id, 'product_id', M.product_id_fk, 'product_name', S.product_name, 'barcode', S.barcode , 'quantity', M.quantity, 'unit_cost', M.unit_cost_usd, 'unit_price', M.unit_cost_usd )) items
             FROM purchase_orders PO
             INNER JOIN purchase_order_items M ON PO.order_id = M.order_id_fk
             INNER JOIN products S ON S.product_id = M.product_id_fk
             LEFT JOIN accounts  A ON PO.partner_id_fk  = A.account_id
+            INNER JOIN inventory I ON PO.inventory_id = I.inventory_id
             WHERE PO.is_deleted = 0`;
         const params = [];
         if (criteria.invoice_number) {

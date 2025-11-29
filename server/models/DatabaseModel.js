@@ -137,8 +137,31 @@ class Database {
                         KEY product_id (product_id_fk) USING BTREE
                         ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
-                `ALTER TABLE inventory_transactions
-MODIFY COLUMN transaction_type enum('SALE','SUPPLY','RETURN','UNRETURN','DELETE','DISPOSE','DELIVER','ADD','REMOVE','RETURN PURCHASE') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL AFTER transaction_datetime;`,
+                `ALTER TABLE inventory_transactions MODIFY COLUMN transaction_type enum('SALE','SUPPLY','RETURN','UNRETURN','DELETE','DISPOSE','DELIVER','ADD','REMOVE','RETURN PURCHASE') NOT NULL AFTER transaction_datetime;`,
+
+
+                `CREATE TABLE inventory (
+                            inventory_id int(11) NOT NULL AUTO_INCREMENT,
+                            inventory_name VARCHAR(255) NOT NULL,
+                            is_deleted TINYINT NOT NULL DEFAULT '0',
+                            PRIMARY KEY (inventory_id)
+                        )`,
+
+                `INSERT INTO inventory (inventory_id, inventory_name, is_deleted)
+                SELECT 1, 'Default', 0
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM inventory WHERE inventory_name = 'Default Inventory'
+                )`,
+
+                `ALTER TABLE inventory_transactions ADD COLUMN inventory_id int DEFAULT 1 NOT NULL;`,
+
+                `ALTER TABLE purchase_orders ADD COLUMN inventory_id int DEFAULT 1 NOT NULL;`,
+                `ALTER TABLE sales_orders ADD COLUMN inventory_id int DEFAULT 1 NOT NULL;`,
+                `ALTER TABLE return_orders ADD COLUMN inventory_id int DEFAULT 1 NOT NULL;`,
+                `ALTER TABLE return_purchase_orders ADD COLUMN inventory_id int DEFAULT 1 NOT NULL;`,
+                
+                `UPDATE accounts SET phone = REPLACE(phone, ' ', '');`,
+
             ];
 
             // Execute queries asynchronously

@@ -166,9 +166,10 @@ class SellOrder {
                             quantity,
                             order_id,
                             invoice_number,
+                            order.inventory_id,
                         ]);
                         //add order_items to inventory transactions
-                        queries += `INSERT INTO inventory_transactions (product_id_fk, quantity, transaction_type, order_id_fk, transaction_notes) VALUES (?, -?, 'SALE', ?, ?);`;
+                        queries += `INSERT INTO inventory_transactions (product_id_fk, quantity, transaction_type, order_id_fk, transaction_notes, inventory_id) VALUES (?, -?, 'SALE', ?, ?, ?);`;
                     }
                 });
                 if (queries) {
@@ -298,7 +299,7 @@ class SellOrder {
                     quantity = element.quantity;
 
                     // update inventory
-                    inventoryQueries += `INSERT INTO inventory_transactions (product_id_fk, transaction_type, quantity, order_id_fk, transaction_notes) VALUES (${product_id}, 'SALE', -${quantity}, ${order_id}, '${orderCheck.invoice_number}');`;
+                    inventoryQueries += `INSERT INTO inventory_transactions (product_id_fk, transaction_type, quantity, order_id_fk, transaction_notes, inventory_id) VALUES (${product_id}, 'SALE', -${quantity}, ${order_id}, '${orderCheck.invoice_number}', ${order.inventory_id});`;
                 }
             });
 
