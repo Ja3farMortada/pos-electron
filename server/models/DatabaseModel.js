@@ -1,6 +1,64 @@
 const pool = require("../config/database");
+const fs = require("fs");
+const path = require("path");
+const mysql = require("mysql2/promise");
+
+const DB_NAME = "angular-pos";
+const SQL_FILE = path.join(__dirname, "../config/database.sql");
 
 class Database {
+    static async initializeDatabase() {
+        try {
+            // Connect without specifying a database
+            const connection = await mysql.createConnection({
+                host: "localhost",
+                user: "root",
+                password: "roottoor",
+                multipleStatements: true,
+            });
+
+            // Check if DB exists
+            const [rows] = await connection.query("SHOW DATABASES LIKE ?", [
+                DB_NAME,
+            ]);
+
+            if (rows.length === 0) {
+                console.log(
+                    `📌 Database "${DB_NAME}" not found. Creating using SQL file...`
+                );
+
+                if (!fs.existsSync(SQL_FILE)) {
+                    throw new Error("database.sql file not found!");
+                }
+
+                const sql = fs.readFileSync(SQL_FILE, "utf8");
+
+                await connection.query(sql);
+
+                console.log("✅ Database & tables created successfully!");
+
+                await connection.end();
+
+                return {
+                    success: true,
+                    status: "created",
+                    message: "Database & tables created successfully!",
+                };
+            } else {
+                console.log(`🔌 Database "${DB_NAME}" already exists.`);
+                await connection.end();
+                return {
+                    success: false,
+                    status: "exists",
+                    message: "Database already exists.",
+                };
+            }
+        } catch (error) {
+            console.error("❌ Database Initialization Error:", error.message);
+            throw error;
+        }
+    }
+
     // update database
     static async update() {
         try {
@@ -139,7 +197,6 @@ class Database {
 
                 `ALTER TABLE inventory_transactions MODIFY COLUMN transaction_type enum('SALE','SUPPLY','RETURN','UNRETURN','DELETE','DISPOSE','DELIVER','ADD','REMOVE','RETURN PURCHASE') NOT NULL AFTER transaction_datetime;`,
 
-
                 `CREATE TABLE inventory (
                             inventory_id int(11) NOT NULL AUTO_INCREMENT,
                             inventory_name VARCHAR(255) NOT NULL,
@@ -159,9 +216,8 @@ class Database {
                 `ALTER TABLE sales_orders ADD COLUMN inventory_id int DEFAULT 1 NOT NULL;`,
                 `ALTER TABLE return_orders ADD COLUMN inventory_id int DEFAULT 1 NOT NULL;`,
                 `ALTER TABLE return_purchase_orders ADD COLUMN inventory_id int DEFAULT 1 NOT NULL;`,
-                
-                `UPDATE accounts SET phone = REPLACE(phone, ' ', '');`,
 
+                `UPDATE accounts SET phone = REPLACE(phone, ' ', '');`,
             ];
 
             // Execute queries asynchronously

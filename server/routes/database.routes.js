@@ -3,6 +3,7 @@ const router = express.Router();
 
 const DatabaseController = require("../controllers/DatabaseController");
 
-router.patch("/", DatabaseController.updateDatabase);
+router.patch("/initialize", DatabaseController.initializeDatabase);
+router.patch("/update", DatabaseController.updateDatabase);
 
 module.exports = router;
