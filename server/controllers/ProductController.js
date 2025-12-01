@@ -22,7 +22,7 @@ exports.createProduct = async (req, res, next) => {
 
     try {
         const result = await Product.create(data, user);
-        const [createdProduct] = await Product.getById(result.insertId);
+        const [createdProduct] = await Product.getById(result.insertId, data.inventory_id);
 
         // socket emit
         io.emit("productCreated", [createdProduct, user]);

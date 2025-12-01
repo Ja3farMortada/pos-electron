@@ -56,6 +56,7 @@ const pool = mysql.createPool({
     waitForConnections: true,
     connectionLimit: 30,
     queueLimit: 0,
+    multipleStatements: true, // 🔥 Add this
     dateStrings: true,
     typeCast: (field, next) => {
         if (field.type === "TINY" && field.length === 1) {

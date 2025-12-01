@@ -172,6 +172,8 @@ class SellOrder {
                         queries += `INSERT INTO inventory_transactions (product_id_fk, quantity, transaction_type, order_id_fk, transaction_notes, inventory_id) VALUES (?, -?, 'SALE', ?, ?, ?);`;
                     }
                 });
+                console.log(queries);
+                
                 if (queries) {
                     await connection.query(queries, params);
                 }

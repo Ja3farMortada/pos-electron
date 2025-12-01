@@ -109,8 +109,8 @@ class Product {
 
             if (data.stock_management && data.quantity) {
                 await connection.query(
-                    `INSERT INTO inventory_transactions (product_id_fk, quantity, transaction_type, transaction_notes) VALUES (?, ?, 'ADD', 'Initial Quantity');`,
-                    [rows.insertId, data.quantity]
+                    `INSERT INTO inventory_transactions (product_id_fk, quantity, transaction_type, transaction_notes, inventory_id) VALUES (?, ?, 'ADD', 'Initial Quantity', ?);`,
+                    [rows.insertId, data.quantity, data.inventory_id]
                 );
             }
 
