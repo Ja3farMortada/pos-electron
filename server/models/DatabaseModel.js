@@ -218,6 +218,8 @@ class Database {
                 `ALTER TABLE return_purchase_orders ADD COLUMN inventory_id int DEFAULT 1 NOT NULL;`,
 
                 `UPDATE accounts SET phone = REPLACE(phone, ' ', '');`,
+
+                `ALTER TABLE sales_orders ADD COLUMN is_official TINYINT(1) DEFAULT 0 NOT NULL;`,
             ];
 
             // Execute queries asynchronously

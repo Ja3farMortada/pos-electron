@@ -111,11 +111,17 @@ class SellOrder {
             let order_id = result.insertId;
 
             // generate invoice_number
+            let prefix = order.is_official ? "SALE-" : "INV";
+            let offset = order.is_official ? 6 : 4;
+
             let [[{ number }]] = await connection.query(
-                `SELECT IFNULL(MAX(CAST(SUBSTRING(invoice_number, 4) AS UNSIGNED)), 1000) + 1 AS number FROM sales_orders`
+                `SELECT IFNULL(MAX(CAST(SUBSTRING(invoice_number, ?) AS UNSIGNED)), 1000) + 1 AS number FROM sales_orders WHERE invoice_number LIKE ?`,
+                [offset, `${prefix}%`]
             );
 
-            let invoice_number = `INV${number.toString().padStart(4, "0")}`;
+            let invoice_number = `${prefix}${number
+                .toString()
+                .padStart(4, "0")}`;
 
             // let invoice_number = invoice.invoice_number;
             await connection.query(
@@ -173,7 +179,7 @@ class SellOrder {
                     }
                 });
                 console.log(queries);
-                
+
                 if (queries) {
                     await connection.query(queries, params);
                 }
@@ -409,10 +415,25 @@ class SellOrder {
             // ++++++++++++++++++ Insert the new order +++++++++++++++++++++++
 
             // fix invoice number
-            order.invoice_number = `INV${order.invoice_number.padStart(
-                4,
-                "0"
-            )}`;
+            // check if is_official changed
+            let newIsOfficial = !!order.is_official;
+            let oldIsOfficial = !!orderCheck.is_official;
+
+            if (newIsOfficial !== oldIsOfficial) {
+                let prefix = newIsOfficial ? "SALE-" : "INV";
+                let offset = newIsOfficial ? 6 : 4;
+
+                let [[{ number }]] = await connection.query(
+                    `SELECT IFNULL(MAX(CAST(SUBSTRING(invoice_number, ?) AS UNSIGNED)), 1000) + 1 AS number FROM sales_orders WHERE invoice_number LIKE ?`,
+                    [offset, `${prefix}%`]
+                );
+                order.invoice_number = `${prefix}${number
+                    .toString()
+                    .padStart(4, "0")}`;
+            } else {
+                // keep existing invoice number
+                order.invoice_number = orderCheck.invoice_number;
+            }
 
             // update journal voucher number
             await connection.query(
@@ -475,8 +496,12 @@ class SellOrder {
 
             // add deleted items to inventory transactions
 
+            // await connection.query(
+            //     `INSERT INTO inventory_transactions (product_id_fk, transaction_type, quantity) SELECT product_id, 'DELETE', quantity FROM sales_order_items WHERE order_id = ?`,
+            //     [order_id]
+            // );
             await connection.query(
-                `INSERT INTO inventory_transactions (product_id_fk, transaction_type, quantity) SELECT product_id, 'DELETE', quantity FROM sales_order_items WHERE order_id = ?`,
+                `DELETE FROM inventory_transactions WHERE order_id_fk = ? AND transaction_type = 'SALE'`,
                 [order_id]
             );
 
@@ -496,11 +521,11 @@ class SellOrder {
             }
 
             // delete old items
-            let deleteItemsQuery = `UPDATE sales_order_items SET is_deleted = 1 WHERE order_id = ?`;
+            let deleteItemsQuery = `DELETE FROM sales_order_items WHERE order_id = ?`;
             await connection.query(deleteItemsQuery, order_id);
 
             // delete old invoice
-            let deleteOrderQuery = `UPDATE sales_orders SET is_deleted = 1 WHERE order_id = ?`;
+            let deleteOrderQuery = `DELETE FROM sales_orders WHERE order_id = ?`;
             await connection.query(deleteOrderQuery, order_id);
 
             await connection.commit();

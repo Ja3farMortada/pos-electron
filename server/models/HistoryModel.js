@@ -4,7 +4,6 @@ const moment = require("moment");
 class History {
     // fetch sales invoices
     static async fetchSalesHistory(criteria) {
-
         let sql = `SELECT
             A.name AS customer_name,
             A.phone AS customer_phone,
@@ -22,7 +21,7 @@ class History {
         const params = [];
         if (criteria.invoice_number) {
             sql += ` AND O.invoice_number LIKE ?`;
-            params.push(`%${criteria.invoice_number}`);
+            params.push(`%${criteria.invoice_number}%`);
         }
         if (criteria.customer_id) {
             sql += ` AND O.customer_id = ?`;
